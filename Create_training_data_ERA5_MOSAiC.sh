@@ -7,7 +7,7 @@
 #$ -q research-r8.q
 #$ -t 1-1464
 ##$ -j y
-#$ -m ba
+##$ -m ba
 #$ -o /home/justinec/Documents/OUT/OUT_$JOB_NAME.$JOB_ID_$TASK_ID
 #$ -e /home/justinec/Documents/ERR/ERR_$JOB_NAME.$JOB_ID_$TASK_ID
 ##$ -R y
