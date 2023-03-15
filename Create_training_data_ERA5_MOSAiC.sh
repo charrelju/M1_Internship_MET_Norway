@@ -5,7 +5,7 @@
 #$ -pe shmem-1 1
 #$ -l h_rss=4G,mem_free=4G
 #$ -q research-r8.q
-#$ -t 1-240
+#$ -t 1-120
 ##$ -j y
 ##$ -m ba
 #$ -o /home/justinec/Documents/OUT/OUT_$JOB_NAME.$JOB_ID_$TASK_ID
@@ -41,15 +41,15 @@ from netCDF4 import Dataset as ncfile
 from netCDF4 import num2date
 import matplotlib.dates as dates
 import datetime
-
+import os
 
 # ### READ DATA
 
 # In[124]:
 
 
-date_min = '20200101000000'
-date_max = '20200229180000'
+date_min = '20200601000000'
+date_max = '20200630180000'
 task_ID = $SGE_TASK_ID
 
 
@@ -91,6 +91,10 @@ else :
 
 ppidir_mosaic = '/lustre/storeB/users/maltem/Arctic/MOSAiC/radiosondes/'+year+'/'+month+'/'
 mosaic_link  = ppidir_mosaic + 'PST-RS-01_2_RS41-GDP_001_'+year+month+day+'T'+hour+'0000_1-000-001.nc'
+if os.path.isfile(mosaic_link) == False:
+    mosaic_link  = ppidir_mosaic + 'PST-RS-01_2_RS41-GDP_001_'+year+month+day+'T'+hour+'0000_1-000-002.nc'
+if os.path.isfile(mosaic_link) == False:
+    mosaic_link  = ppidir_mosaic + 'PST-RS-01_2_RS41-GDP_001_'+year+month+day+'T'+hour+'0000_1-000-003.nc'
 
 era5 = ncfile(era5_link,'r')        #dataset of radiosoundings of ERA5
 mosaic = ncfile(mosaic_link,'r')    #dataset of radiosoundings of MOSAiC
@@ -188,8 +192,8 @@ def corresponding_index(era5,mosaic) :
 # In[134]:
 
 
-#desired_levels = list(range(300, 1025, 25)) #from 300 hPa to 1000 hPa by 25 hPa
-desired_levels=era5_pres #if we want the same levels as era5 simply decomment this line
+desired_levels = list(range(300, 1025, 25)) #from 300 hPa to 1000 hPa by 25 hPa
+#desired_levels=era5_pres #if we want the same levels as era5 simply decomment this line
 
 
 # In[135]:
@@ -359,13 +363,13 @@ def plotprofiles() :
     fig.tight_layout()
     fig.subplots_adjust(top=0.93)
     path_fig = '/lustre/storeB/users/justinec/master_internship/figures/era5_mosaic_profiles/'
-    plt.savefig(path_fig+'fig_profiles_'+date_task+'.png')
+    plt.savefig(path_fig+'fig_profiles_tropo_'+date_task+'.png')
 
 
 # In[142]:
 
 
-plotprofiles() #comment this line to not plot figure
+#plotprofiles() #comment this line to not plot figure
 
 
 # ### CREATE COLLOCATED NCFILE
