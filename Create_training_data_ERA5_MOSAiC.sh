@@ -105,7 +105,7 @@ mosaic = ncfile(mosaic_link,'r')    #dataset of radiosoundings of MOSAiC
 
 # ----- RADIOSOUNDINGS REANALYSES ERA5 -----
 era5_lat = era5.variables['latitude'][:]
-era5_lon =era5.variables['longitude'][:]
+era5_lon = era5.variables['longitude'][:]
 era5_pres = era5.variables['level'][:]
 era5_time = era5.variables['time'][:]
 
@@ -193,7 +193,7 @@ def corresponding_index(era5,mosaic) :
 
 
 desired_levels = list(range(300, 1025, 25)) #from 300 hPa to 1000 hPa by 25 hPa
-#desired_levels=era5_pres #if we want the same levels as era5 simply decomment this line
+#desired_levels=era5_pres #if we want the same levels as ERA5 simply decomment this line
 
 
 # In[135]:
