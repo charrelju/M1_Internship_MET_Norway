@@ -1,0 +1,31 @@
+/bin/sh: module: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC_module'
+/bin/sh: switchml: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC_switchml'
+/bin/sh: _module_raw: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC__module_raw'
+/bin/sh: ml: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC_ml'
+-catch_rsh /var/spool/gridengine/execd/c6320-8kphwl2-ag-compute/active_jobs/3999819.1/pe_hostfile
+c6320-8kphwl2-ag-compute
+-bash: module: line 1: syntax error: unexpected end of file
+-bash: error importing function definition for `BASH_FUNC_module'
+-bash: switchml: line 1: syntax error: unexpected end of file
+-bash: error importing function definition for `BASH_FUNC_switchml'
+-bash: _module_raw: line 1: syntax error: unexpected end of file
+-bash: error importing function definition for `BASH_FUNC__module_raw'
+-bash: ml: line 1: syntax error: unexpected end of file
+-bash: error importing function definition for `BASH_FUNC_ml'
+Got 1 slots for job 1.
+  File "/home/justinec/Documents/PROG/Training_data_SEA_ICE_MOSAiC_1.py", line 34
+    task_ID = 
+              ^
+SyntaxError: invalid syntax
+/bin/sh: module: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC_module'
+/bin/sh: switchml: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC_switchml'
+/bin/sh: _module_raw: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC__module_raw'
+/bin/sh: ml: line 1: syntax error: unexpected end of file
+/bin/sh: error importing function definition for `BASH_FUNC_ml'
