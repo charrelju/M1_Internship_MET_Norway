@@ -14,7 +14,7 @@
 ##$ -r y
 
 source /modules/rhel8/conda/install/etc/profile.d/conda.sh
-conda activate /lustre/storeB/users/justinec/myconda
+conda activate production-03-2022
 
 echo "Got $NSLOTS slots for job $SGE_TASK_ID."
 
@@ -34,7 +34,7 @@ cat > "/home/justinec/Documents/PROG/Training_data_ERA5_MOSAiC_""$SGE_TASK_ID"".
 
 # ### IMPORT
 
-# In[1]:
+# In[2]:
 
 
 import numpy as np
@@ -49,7 +49,7 @@ from metpy.units import units
 
 # ### READ DATA
 
-# In[2]:
+# In[26]:
 
 
 date_min = '20191001000000'
@@ -57,7 +57,7 @@ date_max = '20200930180000'
 task_ID = $SGE_TASK_ID
 
 
-# In[3]:
+# In[27]:
 
 
 """Function that create a list of dates and take the date corresponding to the index giving by the bash script."""
@@ -72,34 +72,30 @@ def task_date(date_min, date_max, task_ID):
     return(date_task)
 
 
-# In[4]:
+# In[28]:
 
 
 date_task = task_date(date_min,date_max,task_ID)
 
 
-# In[5]:
+# In[29]:
 
 
 date_task
 
 
-# In[6]:
+# In[30]:
 
 
 year=date_task[0:4] ; month=date_task[4:6] ; day=date_task[6:8] ; hour=date_task[8:10]
 
-ppidir_era5 = '/lustre/storeB/users/maltem/Arctic/MOSAiC/ERA5/'
-ppidir_era5_sh  = 'https://thredds.met.no/thredds/dodsC/metusers/maltem/MOSAiC/'
+ppidir_era5 = '/lustre/storeB/users/maltem/nowwind/MOSAiC/'
 if (year=='2019') and (month=='10' or month=='11' or month=='12') :
-    era5_link  = ppidir_era5 + 'ERA5_CentralArctic_PL_Radiosonde_Oct-Dec2019.nc'
-    era5sh_link = ppidir_era5_sh + 'ERA5_CentralArctic_PL_sH_Radiosonde_Oct-Dec2019.nc'
-elif (year=='2020') and (month=='01' or month=='02' or month=='03') :
-    era5_link  = ppidir_era5 + 'ERA5_CentralArctic_PL_Radiosonde_Jan-Mar2020.nc'
-    era5sh_link = ppidir_era5_sh + 'ERA5_CentralArctic_PL_sH_Radiosonde_Jan-Mar2020.nc'
-elif (year=='2020') and (month=='04' or month=='05' or month=='06' or month=='07' or month=='08' or month=='09') :
-    era5_link  = ppidir_era5 + 'ERA5_EuropeanArctic_PL_Radiosonde_April-Sep2020.nc'
-    era5sh_link = ppidir_era5_sh + 'ERA5_EuropeanArctic_PL_sH_Radiosonde_April-Sep2020.nc'
+    era5_link  = ppidir_era5 + 'ERA5_PL_Oct-Dec_2019.nc'
+elif (year=='2020') and (month=='01' or month=='02' or month=='03' or month=='04') :
+    era5_link  = ppidir_era5 + 'ERA5_PL_Jan-Apr_2020.nc'
+elif (year=='2020') and (month=='05' or month=='06' or month=='07' or month=='08' or month=='09') :
+    era5_link  = ppidir_era5 + 'ERA5_PL_May-Sep_2020.nc'
 else :
     print('no data available with ERA5 for this date')
 
@@ -112,11 +108,10 @@ if os.path.isfile(mosaic_link) == False:
     mosaic_link  = ppidir_mosaic + 'PST-RS-01_2_RS41-GDP_001_'+year+month+day+'T'+hour+'0000_1-000-003.nc'
     
 era5 = ncfile(era5_link,'r')        #dataset of radiosoundings of ERA5
-era5sh = ncfile(era5sh_link,'r')     #dataset of radiosoundings of ERA5 for specific humidity
 mosaic = ncfile(mosaic_link,'r')    #dataset of radiosoundings of MOSAiC
 
 
-# In[7]:
+# In[31]:
 
 
 # ----- RADIOSOUNDINGS REANALYSES ERA5 -----
@@ -126,7 +121,7 @@ era5_pres = era5.variables['level'][:]
 era5_time = era5.variables['time'][:]
 
 
-# In[8]:
+# In[32]:
 
 
 # ----- RADIOSOUNDINGS MOSAiC -----
@@ -136,7 +131,7 @@ mosaic_pres = mosaic.variables['press'][:]
 mosaic_time = mosaic.variables['time'][:]
 
 
-# In[9]:
+# In[33]:
 
 
 """
@@ -162,7 +157,7 @@ great_circle_distance(mosaic_lon[0], mosaic_lat[0], mosaic_lon[-1], mosaic_lat[-
 
 # ### CONVERT TIME
 
-# In[10]:
+# In[34]:
 
 
 """Function that convert times of a dataset depemding on its unit and calendar 
@@ -183,7 +178,7 @@ def convert_time(dataset) :
     return dataset_nctime,dataset_nctimenum,t_unit
 
 
-# In[11]:
+# In[35]:
 
 
 era5_nctime,era5_nctimenum, t_unit = convert_time(era5)
@@ -192,7 +187,7 @@ mosaic_nctime, mosaic_nctimenum, t_unit = convert_time(mosaic)
 
 # ### CORRESPONDING INDEXES OF LATITUDE, LONGITUDE, TIME AND OF PRESSURE LEVELS BETWEEN ERA5 AND MOSAIC
 
-# In[12]:
+# In[36]:
 
 
 """Function that finds the indexes of the closest values between ERA5 and MOSAiC.
@@ -205,14 +200,14 @@ def corresponding_index(era5,mosaic) :
     return indx
 
 
-# In[13]:
+# In[37]:
 
 
 desired_levels = list(range(300, 1025, 25)) #from 300 hPa to 1000 hPa by 25 hPa
 #desired_levels=era5_pres #if we want the same levels as ERA5 simply decomment this line
 
 
-# In[14]:
+# In[38]:
 
 
 # Considering a single MOSAiC time because radiosounding lasts 1h30. It's short enough for all radiosounding times to be close to the same ERA5 time [00:00, 6:00, 12:00, 18:00]
@@ -238,7 +233,7 @@ for i in range(0,len(mosaic_lon[indx_level])) :
     indx_lon.append(corresponding_index(era5_lon,mosaic_lon[indx_level][i]))
 
 
-# In[15]:
+# In[39]:
 
 
 mosaic_lat_collocated = mosaic_lat[indx_level]    #keep mosaic's latitudes of each desired pressure level
@@ -249,9 +244,21 @@ era5_lat_collocated = era5_lat[indx_lat] #latitude closest to mosaic
 era5_lon_collocated = era5_lon[indx_lon] #longitude closest to mosaic
 
 
+# In[40]:
+
+
+mosaic_lat_collocated,mosaic_lon_collocated
+
+
+# In[41]:
+
+
+era5_lat_collocated,era5_lon_collocated
+
+
 # ### CORRESPONDING TEMPERATURE, RELATIVE AND SPECIFIC HUMIDITY, ZONAL WIND U, MERIDIONAL WIND V, WIND DIRECTION AND WIND SPEED OF ERA5 AND MOSAIC
 
-# In[16]:
+# In[42]:
 
 
 # MOSAiC
@@ -265,14 +272,14 @@ mosaic_wdir = mosaic.variables['wdir'][indx_level]
 mosaic_wspeed = mosaic.variables['wspeed'][indx_level]
 
 
-# In[79]:
+# In[43]:
 
 
 # Calculate specific humidity of MOSAiC from dew point
 mosaic_sh = specific_humidity_from_dewpoint(units.Quantity(mosaic_pres[indx_level], "hPa"), units.Quantity(mosaic_dp, "K")).to('g/kg')
 
 
-# In[65]:
+# In[44]:
 
 
 era5_pres_list=era5_pres.tolist()
@@ -286,7 +293,7 @@ def interpolate() :
             era5_temp.append(t)
             rh = era5.variables['r'][indx_time][ind][indx_lat[i]][indx_lon[i]]
             era5_rh.append(rh)
-            sh = era5sh.variables['q'][indx_time][ind][indx_lat[i]][indx_lon[i]]*1e3 #sh in kg/kg to g/kg
+            sh = era5.variables['q'][indx_time][ind][indx_lat[i]][indx_lon[i]]*1e3 #sh in kg/kg to g/kg
             era5_sh.append(sh)
             u = era5.variables['u'][indx_time][ind][indx_lat[i]][indx_lon[i]]
             era5_u.append(u)
@@ -298,7 +305,7 @@ def interpolate() :
             era5_temp.insert(i,(np.mean([era5_temp[i-1],t])))
             rh = era5.variables['r'][indx_time][ind+1][indx_lat[i]][indx_lon[i]]
             era5_rh.insert(i,(np.mean([era5_rh[i-1],rh])))
-            sh = era5sh.variables['q'][indx_time][ind+1][indx_lat[i]][indx_lon[i]]*1e3 #sh in kg/kg to g/kg
+            sh = era5.variables['q'][indx_time][ind+1][indx_lat[i]][indx_lon[i]]*1e3 #sh in kg/kg to g/kg
             era5_sh.insert(i,(np.mean([era5_sh[i-1],sh])))
             u = era5.variables['u'][indx_time][ind+1][indx_lat[i]][indx_lon[i]]
             era5_u.insert(i,(np.mean([era5_u[i-1],u])))
@@ -307,13 +314,13 @@ def interpolate() :
     return era5_temp, era5_rh, era5_sh, era5_u, era5_v
 
 
-# In[66]:
+# In[45]:
 
 
 era5_temp, era5_rh, era5_sh, era5_u, era5_v = interpolate()
 
 
-# In[68]:
+# In[46]:
 
 
 era5_wdir = []
@@ -325,7 +332,7 @@ for i in range(0, len(indx_lat)) :
 
 # ### PLOT 
 
-# In[84]:
+# In[47]:
 
 
 """Function that plot the profiles of temperature, relative humidity, zonal wind u, meridional wind v, wind direction and wind speed of ERA5 and MOSAiC"""
@@ -384,7 +391,7 @@ def plotprofiles() :
     plt.savefig(path_fig+'fig_profiles_tropo_'+date_task+'.png')
 
 
-# In[85]:
+# In[48]:
 
 
 #plotprofiles() #comment this line to not plot figure
@@ -392,7 +399,7 @@ def plotprofiles() :
 
 # ### CREATE COLLOCATED NCFILE
 
-# In[75]:
+# In[49]:
 
 
 # Create a ncfile in a path
@@ -401,14 +408,14 @@ output_filename = path_output + year + '/' + month + '/collocated_ERA5_MOSAiC_' 
 output_netcdf = ncfile(output_filename, 'w', format = 'NETCDF4')
 
 
-# In[76]:
+# In[50]:
 
 
 # Dimension
 pres = output_netcdf.createDimension('pres',len(desired_levels))
 
 
-# In[77]:
+# In[51]:
 
 
 # Variables
@@ -425,11 +432,13 @@ wspeed_mosaic = output_netcdf.createVariable('wspeed_mosaic', 'd', ('pres'))
 wdir_era5 = output_netcdf.createVariable('wdir_era5', 'd', ('pres'))
 wdir_mosaic = output_netcdf.createVariable('wdir_mosaic', 'd', ('pres'))
 lat_mosaic = output_netcdf.createVariable('lat_mosaic', 'd', ('pres'))
+lat_era5 = output_netcdf.createVariable('lat_era5', 'd', ('pres'))
 lon_mosaic = output_netcdf.createVariable('lon_mosaic', 'd', ('pres'))
+lon_era5 = output_netcdf.createVariable('lon_era5', 'd', ('pres'))
 time_mosaic = output_netcdf.createVariable('time_mosaic', 'd', ('pres'))
 
 
-# In[78]:
+# In[52]:
 
 
 # Information
@@ -472,17 +481,23 @@ wdir_mosaic.long_name = 'Wind direction'
 wdir_mosaic.standard_name = 'wind_from_direction'
 wdir_mosaic.comment = 'Wind direction with 0°:north, 90°:east, 180°:south, 270°:west'
 lat_mosaic.units = 'degree_North'
-lat_mosaic.long_name = 'Latitude'
-lat_mosaic.standard_name = 'latitude'
+lat_mosaic.long_name = 'Latitude of MOSAiC'
+lat_mosaic.standard_name = 'MOSAiC_latitude'
+lat_era5.units = 'degree_North'
+lat_era5.long_name = 'Latitude of ERA5'
+lat_era5.standard_name = 'ERA5_latitude'
 lon_mosaic.units = 'degree_East'
-lon_mosaic.long_name = 'Longitude'
-lon_mosaic.standard_name = 'longitude'
+lon_mosaic.long_name = 'Longitude of MOSAiC'
+lon_mosaic.standard_name = 'MOSAiC_longitude'
+lon_era5.units = 'degree_East'
+lon_era5.long_name = 'Longitude of ERA5'
+lon_era5.standard_name = 'ERA5_longitude'
 time_mosaic.units = t_unit
 time_mosaic.long_name = 'Time'
 time_mosaic.standard_name = 'time'
 
 
-# In[82]:
+# In[53]:
 
 
 # Assignment of variables
@@ -499,11 +514,13 @@ wspeed_mosaic[:] = mosaic_wspeed
 wdir_era5[:] = era5_wdir
 wdir_mosaic[:] = mosaic_wdir
 lat_mosaic[:] = mosaic_lat_collocated
+lat_era5[:] = era5_lat_collocated
 lon_mosaic[:] = mosaic_lon_collocated
+lon_era5[:] = era5_lon_collocated
 time_mosaic[:] = mosaic_time_collocated
 
 
-# In[83]:
+# In[54]:
 
 
 output_netcdf.close() #close the netcdf file
